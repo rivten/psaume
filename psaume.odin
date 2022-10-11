@@ -77,14 +77,16 @@ main :: proc() {
         append(&paths, k)
     }
 
-    path_to_look := map[string]bool {
-        "get" = true,
-        "post" = true,
-        "patch" = true,
-        "put" = true,
-        "trace" = true,
-        "head" = true,
-        "options" = true,
+    Present :: struct {}
+
+    path_to_look := map[string]Present {
+        "get" = Present{},
+        "post" = Present{},
+        "patch" = Present{},
+        "put" = Present{},
+        "trace" = Present{},
+        "head" = Present{},
+        "options" = Present{},
     }
 
     path := fzf(paths[:]) 
