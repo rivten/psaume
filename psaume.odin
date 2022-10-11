@@ -77,14 +77,15 @@ main :: proc() {
         append(&paths, k)
     }
 
-    path_to_look := make(map[string]bool)
-    path_to_look["get"] = true
-    path_to_look["post"] = true
-    path_to_look["patch"] = true
-    path_to_look["put"] = true
-    path_to_look["trace"] = true
-    path_to_look["head"] = true
-    path_to_look["options"] = true
+    path_to_look := map[string]bool {
+        "get" = true,
+        "post" = true,
+        "patch" = true,
+        "put" = true,
+        "trace" = true,
+        "head" = true,
+        "options" = true,
+    }
 
     path := fzf(paths[:]) 
     path_item_object := value.(json.Object)["paths"].(json.Object)[path].(json.Object)
@@ -102,5 +103,23 @@ main :: proc() {
     else {
         item = fzf(items[:])
     }
-    fmt.println(item, path_item_object[item])
+    parameters := path_item_object[item].(json.Object)["parameters"]
+    requestBody := path_item_object[item].(json.Object)["requestBody"]
+
+    if parameters != nil {
+        for parameter in parameters.(json.Array) {
+            fmt.println(parameter)
+        }
+    }
+    if requestBody != nil {
+        schema := requestBody.(json.Object)["content"].(json.Object)["application/json"].(json.Object)["schema"].(json.Object)
+        if "$ref" in schema {
+            cur := value
+            for p in strings.split(schema["$ref"].(json.String), "/")[1:] {
+                cur = cur.(json.Object)[p]
+                assert(cur != nil)
+            }
+            fmt.println(cur)
+        }
+    }
 }
